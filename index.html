@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mushoku Tensei RPG — Đầu Thai Của Kẻ Vô Dụng</title>
+  <meta name="description" content="Game nhập vai văn bản thế giới Mushoku Tensei, do Gemini AI làm Quản Trò. Hệ thống dice DnD, inventory, kỹ năng, và hơn thế nữa.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/panels.css">
+  <link rel="stylesheet" href="css/dice.css">
+  <link rel="stylesheet" href="css/modals.css">
+  <link rel="stylesheet" href="css/assistant.css">
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- START SCREEN                                                 -->
+<!-- ============================================================ -->
+<div id="start-screen" class="screen active">
+  <div class="start-bg">
+    <div class="start-particles" id="start-particles"></div>
+    <div class="start-overlay"></div>
+  </div>
+
+  <div class="start-content">
+    <div class="start-logo">
+      <div class="logo-subtitle">✦ NHẬP VAI VĂN BẢN ✦</div>
+      <h1 class="logo-title">MUSHOKU TENSEI</h1>
+      <div class="logo-tagline">Đầu Thai Của Kẻ Vô Dụng</div>
+    </div>
+
+    <div id="continue-banner" class="continue-banner hidden"></div>
+
+    <div id="api-key-prompt" class="api-prompt hidden">
+      <div class="api-prompt-box">
+        <h3>🔑 Nhập Gemini API Key</h3>
+        <p>Lấy miễn phí tại <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></p>
+        <input type="password" id="api-key-input-start" placeholder="AIza..." class="api-input">
+        <select id="model-select-start" class="model-select">
+          <option value="gemini-3.8-flash">Gemini 3.8 Flash (Khuyên dùng - Cân bằng)</option>
+          <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite (Nhanh nhất)</option>
+          <option value="gemini-3.1-pro">Gemini 3.1 Pro (Suy luận nâng cao)</option>
+        </select>
+        <button onclick="App.saveAPIKeyAndProceed()" class="btn-gold">Bắt đầu →</button>
+      </div>
+    </div>
+
+    <div class="start-actions">
+      <button id="start-new-btn" class="btn-primary">
+        <span class="btn-icon">⚔</span>
+        <span>Bắt Đầu Hành Trình Mới</span>
+      </button>
+      <button id="load-game-btn" class="btn-secondary">
+        <span class="btn-icon">📜</span>
+        <span>Tải Game Đã Lưu</span>
+      </button>
+    </div>
+
+    <div class="start-lore">
+      <p>Thế giới vừa trải qua <strong>Đại Thảm Họa Dịch Chuyển</strong> — hàng ngàn người bị tống vào vùng đất xa lạ, quái vật, và hỗn loạn. Không ai còn ở nơi họ thuộc về...</p>
+    </div>
+
+    <div class="start-footer">
+      <span>Hệ thống DnD d20 • AI Quản Trò • Tiếng Việt • 18+</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CHARACTER CREATION                                           -->
+<!-- ============================================================ -->
+<div id="character-creation" class="screen">
+  <div class="cc-header">
+    <button id="back-to-start-btn" class="btn-ghost">← Quay lại</button>
+    <h2 class="cc-title">⚔ Tạo Nhân Vật</h2>
+    <div class="cc-step-indicator">
+      <span class="step active">Chủng tộc</span>
+      <span>→</span>
+      <span class="step">Nền tảng</span>
+      <span>→</span>
+      <span class="step">Chỉ số</span>
+    </div>
+  </div>
+
+  <div class="cc-body">
+
+    <!-- LEFT: Character Name + Race -->
+    <div class="cc-section cc-left">
+      <div class="form-group">
+        <label for="char-name-input">Tên nhân vật</label>
+        <input type="text" id="char-name-input" placeholder="Nhập tên của bạn..." class="name-input" maxlength="30">
+      </div>
+
+      <h3 class="section-title">Chọn chủng tộc</h3>
+      <div id="race-grid" class="race-grid"></div>
+
+      <div class="race-traits-box">
+        <h4>Đặc điểm chủng tộc</h4>
+        <ul id="race-traits-preview"></ul>
+      </div>
+    </div>
+
+    <!-- MIDDLE: Background + Focus -->
+    <div class="cc-section cc-mid">
+      <h3 class="section-title">Xuất thân</h3>
+      <div class="option-row">
+        <div class="bg-option" data-bg="isekai">
+          <div class="opt-icon">🌀</div>
+          <div class="opt-name">Đầu Thai (Isekai)</div>
+          <div class="opt-desc">Từ thế giới khác. Có kiến thức hiện đại nhưng không có trang bị, bị nghi ngờ.</div>
+        </div>
+        <div class="bg-option" data-bg="local">
+          <div class="opt-icon">🏠</div>
+          <div class="opt-name">Người Địa Phương</div>
+          <div class="opt-desc">Sinh ra trong thế giới này. Có trang bị cơ bản, hiểu biết văn hóa tốt hơn. +20 HP.</div>
+        </div>
+      </div>
+
+      <h3 class="section-title">Hướng phát triển</h3>
+      <div class="option-row">
+        <div class="focus-option" data-focus="magic">
+          <div class="opt-icon">✨</div>
+          <div class="opt-name">Pháp Thuật</div>
+          <div class="opt-desc">Tập trung vào phép thuật. Bắt đầu với 1 hệ phép thuật cơ bản.</div>
+        </div>
+        <div class="focus-option" data-focus="combat">
+          <div class="opt-icon">⚔</div>
+          <div class="opt-name">Chiến Đấu</div>
+          <div class="opt-desc">Tập trung vào cận chiến và Touki. Có kiếm và giáp ban đầu.</div>
+        </div>
+        <div class="focus-option" data-focus="rogue">
+          <div class="opt-icon">🗡</div>
+          <div class="opt-name">Lưu Manh</div>
+          <div class="opt-desc">Ẩn thân, tấn công bất ngờ, sinh tồn. Dao găm và bộ phá khóa.</div>
+        </div>
+      </div>
+
+      <!-- Magic sub-options -->
+      <div id="magic-sub" class="sub-options" style="display: none;">
+        <h4>Hệ phép thuật khởi đầu</h4>
+        <div class="element-row">
+          <div class="element-option" data-element="earth">🟤 Đất</div>
+          <div class="element-option" data-element="fire">🔴 Lửa</div>
+          <div class="element-option" data-element="water">🔵 Nước</div>
+          <div class="element-option" data-element="wind">🟢 Gió</div>
+          <div class="element-option" data-element="healing">💚 Chữa Thương</div>
+        </div>
+      </div>
+
+      <!-- Combat sub-options -->
+      <div id="combat-sub" class="sub-options hidden">
+        <h4>Phong cách kiếm thuật</h4>
+        <div class="style-row">
+          <div class="style-option" data-style="sword-god">
+            <strong>Kiếm Thần Lưu</strong>
+            <small>Tấn công liên tiếp, sát thương cao, ít phòng thủ</small>
+          </div>
+          <div class="style-option" data-style="water-god">
+            <strong>Thủy Thần Lưu</strong>
+            <small>Phòng thủ hoàn hảo, phản đòn chính xác</small>
+          </div>
+          <div class="style-option" data-style="north-god">
+            <strong>Bắc Thần Lưu</strong>
+            <small>Thực dụng, dùng môi trường và chiêu trò bẩn</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Stat allocation + Preview -->
+    <div class="cc-section cc-right">
+      <h3 class="section-title">Phân bổ chỉ số</h3>
+      <div class="points-remaining-box">
+        <span>Điểm còn lại: </span>
+        <strong id="points-remaining">8</strong>
+      </div>
+
+      <div class="stat-allocation">
+        <div class="stat-row" id="stat-row-str">
+          <span class="stat-label">💪 STR</span>
+          <button id="minus-str" class="stat-btn">−</button>
+          <span id="extra-str" class="extra-pts">+0</span>
+          <button id="plus-str" class="stat-btn">+</button>
+        </div>
+        <div class="stat-row" id="stat-row-int">
+          <span class="stat-label">🧠 INT</span>
+          <button id="minus-int" class="stat-btn">−</button>
+          <span id="extra-int" class="extra-pts">+0</span>
+          <button id="plus-int" class="stat-btn">+</button>
+        </div>
+        <div class="stat-row" id="stat-row-agi">
+          <span class="stat-label">⚡ AGI</span>
+          <button id="minus-agi" class="stat-btn">−</button>
+          <span id="extra-agi" class="extra-pts">+0</span>
+          <button id="plus-agi" class="stat-btn">+</button>
+        </div>
+        <div class="stat-row" id="stat-row-end">
+          <span class="stat-label">🛡 END</span>
+          <button id="minus-end" class="stat-btn">−</button>
+          <span id="extra-end" class="extra-pts">+0</span>
+          <button id="plus-end" class="stat-btn">+</button>
+        </div>
+        <div class="stat-row" id="stat-row-cha">
+          <span class="stat-label">✨ CHA</span>
+          <button id="minus-cha" class="stat-btn">−</button>
+          <span id="extra-cha" class="extra-pts">+0</span>
+          <button id="plus-cha" class="stat-btn">+</button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-box">
+        <h4>Xem trước chỉ số</h4>
+        <div class="preview-stats">
+          <div class="pstat"><span>STR</span><strong id="preview-str">6</strong></div>
+          <div class="pstat"><span>INT</span><strong id="preview-int">6</strong></div>
+          <div class="pstat"><span>AGI</span><strong id="preview-agi">6</strong></div>
+          <div class="pstat"><span>END</span><strong id="preview-end">6</strong></div>
+          <div class="pstat"><span>CHA</span><strong id="preview-cha">6</strong></div>
+        </div>
+        <div class="preview-derived">
+          <div>❤ HP: <strong id="preview-hp">—</strong></div>
+          <div>💧 Mana: <strong id="preview-mana">—</strong></div>
+          <div>⚡ Stamina: <strong id="preview-stamina">—</strong></div>
+        </div>
+      </div>
+
+      <button id="create-char-btn" class="btn-primary btn-full">
+        ⚔ Bắt Đầu Hành Trình
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- GAME SCREEN                                                  -->
+<!-- ============================================================ -->
+<div id="game-screen" class="screen">
+
+  <!-- Header -->
+  <header class="game-header">
+    <div class="header-left">
+      <div class="game-logo" style="cursor: pointer;" onclick="window.location.reload()" title="Tải lại trang">⚔ MUSHOKU RPG</div>
+    </div>
+    <div class="header-center">
+      <span class="location-indicator">📍 <span id="header-location">—</span></span>
+    </div>
+    <div class="header-right">
+      <button id="btn-inventory" class="header-btn" title="Túi đồ">📦 Đồ</button>
+      <button id="btn-skills" class="header-btn" title="Kỹ năng">⚡ Kỹ năng</button>
+      <button id="btn-save" class="header-btn" title="Lưu game">💾 Lưu</button>
+      <button id="btn-settings" class="header-btn" title="Cài đặt">⚙</button>
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <div class="game-layout">
+
+    <!-- LEFT PANEL: Character -->
+    <aside class="char-panel panel">
+      <div class="char-header">
+        <div class="char-portrait" id="char-portrait" onclick="UI.showCharacterSheet()" title="Xem hồ sơ nhân vật" style="cursor: pointer;">👤</div>
+        <div class="char-info">
+          <div class="char-name" id="char-name">—</div>
+          <div class="char-race" id="char-race">—</div>
+          <div class="char-level" id="char-level">Lv. 1</div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <!-- HP -->
+        <div class="stat-bar-group">
+          <div class="stat-bar-header">
+            <span class="stat-bar-label">❤ HP</span>
+            <span class="stat-bar-text" id="hp-text">—</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="bar-fill hp-bar" id="hp-bar" style="width:100%"></div>
+          </div>
+        </div>
+
+        <!-- Mana -->
+        <div class="stat-bar-group">
+          <div class="stat-bar-header">
+            <span class="stat-bar-label">💧 Mana</span>
+            <span class="stat-bar-text" id="mana-text">—</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="bar-fill mana-bar" id="mana-bar" style="width:100%"></div>
+          </div>
+        </div>
+
+        <!-- Stamina -->
+        <div class="stat-bar-group">
+          <div class="stat-bar-header">
+            <span class="stat-bar-label">⚡ Stamina</span>
+            <span class="stat-bar-text" id="stamina-text">—</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="bar-fill stamina-bar" id="stamina-bar" style="width:100%"></div>
+          </div>
+        </div>
+
+        <!-- XP -->
+        <div class="stat-bar-group">
+          <div class="stat-bar-header">
+            <span class="stat-bar-label">✨ XP</span>
+            <span class="stat-bar-text" id="xp-text">—</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="bar-fill xp-bar" id="xp-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attributes -->
+      <div class="attributes-grid">
+        <div class="attr-cell"><span class="attr-label">STR</span><span class="attr-val" id="stat-str">—</span></div>
+        <div class="attr-cell"><span class="attr-label">INT</span><span class="attr-val" id="stat-int">—</span></div>
+        <div class="attr-cell"><span class="attr-label">AGI</span><span class="attr-val" id="stat-agi">—</span></div>
+        <div class="attr-cell"><span class="attr-label">END</span><span class="attr-val" id="stat-end">—</span></div>
+        <div class="attr-cell"><span class="attr-label">CHA</span><span class="attr-val" id="stat-cha">—</span></div>
+        <div class="attr-cell gold-cell"><span class="attr-label">💰</span><span class="attr-val" id="char-gold">—</span></div>
+      </div>
+
+      <!-- Status effects -->
+      <div class="status-section">
+        <div class="status-label">Trạng thái</div>
+        <div class="status-effects" id="status-effects"></div>
+      </div>
+
+      <!-- Panel quick actions -->
+      <div class="panel-btns">
+        <button class="panel-btn" onclick="UI.showInventory()">📦 Túi đồ</button>
+        <button class="panel-btn" onclick="UI.showSkills()">⚡ Kỹ năng</button>
+      </div>
+    </aside>
+
+    <!-- CENTER: Story Chat -->
+    <main class="story-panel panel">
+      <div class="story-header">
+        <span class="story-title">📖 Câu chuyện</span>
+        <div class="tts-speed-bar" id="tts-speed-bar">
+          <button id="tts-autoscroll-btn" class="tts-speed-btn active" title="Bật/tắt tự động cuộn theo chữ">📌 Cuộn chữ</button>
+          <div class="tts-divider"></div>
+          <span class="tts-speed-label">🔊</span>
+          <button class="tts-speed-btn" data-rate="0.75" title="Chậm">0.75×</button>
+          <button class="tts-speed-btn active" data-rate="1" title="Bình thường">1×</button>
+          <button class="tts-speed-btn" data-rate="1.25" title="Nhanh hơn">1.25×</button>
+          <button class="tts-speed-btn" data-rate="1.5" title="Nhanh">1.5×</button>
+          <button class="tts-speed-btn" data-rate="2" title="Rất nhanh">2×</button>
+        </div>
+        <span class="turn-counter">Lượt: <span id="turn-display">0</span></span>
+      </div>
+
+      <div class="story-chat" id="story-chat">
+        <!-- Messages render here -->
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea
+            id="player-input"
+            placeholder="Mô tả hành động của bạn... (Enter để gửi, Shift+Enter xuống dòng)"
+            rows="2"
+            maxlength="500"
+          ></textarea>
+          <div class="input-actions">
+            <button id="roll-dice-btn" class="roll-btn" title="Tung xúc xắc d20">🎲 Dice</button>
+            <button id="send-btn" class="send-btn">Hành Động <span>↵</span></button>
+          </div>
+        </div>
+        <div class="char-count" id="char-count">0/500</div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL: World -->
+    <aside class="world-panel panel">
+      <div class="world-location-box">
+        <div class="world-label">📍 Vị trí hiện tại</div>
+        <div class="world-location" id="world-location">—</div>
+      </div>
+
+
+
+      <!-- NPC memory -->
+      <div class="npc-box">
+        <div class="world-label">👥 NPC đã gặp</div>
+        <div id="npc-list" class="npc-list">
+          <span class="empty-msg">Chưa gặp ai.</span>
+        </div>
+      </div>
+
+      <!-- Quick dice -->
+      <div class="quick-dice-box">
+        <div class="world-label">🎲 Dice thủ công</div>
+        <div class="quick-dice-row">
+          <button class="quick-dice-btn" onclick="DiceSystem.animateRoll(0,'Roll d20 tự do', (r) => UI.addDiceResultMessage(r))">d20</button>
+          <button class="quick-dice-btn" onclick="DiceSystem.animateRoll(0,'Roll d6 tự do', (r) => UI.addDiceResultMessage(r), 'd6')">d6</button>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- end game-layout -->
+
+  <!-- Action Log (bottom) -->
+  <div id="action-log" class="action-log">
+    <div class="log-header" id="log-toggle">
+      📋 Nhật ký hành động <span class="log-arrow">▲</span>
+    </div>
+    <div id="action-log-content" class="log-content"></div>
+  </div>
+
+</div><!-- end game-screen -->
+
+<!-- ============================================================ -->
+<!-- DICE OVERLAY                                                 -->
+<!-- ============================================================ -->
+<div id="dice-overlay" class="dice-overlay">
+  <div class="dice-container">
+    <div class="dice-context-text" id="dice-context">Tung xúc xắc!</div>
+
+    <div class="dice-type-toggle">
+      <button class="dice-toggle-btn active" data-type="d20">d20</button>
+      <button class="dice-toggle-btn" data-type="d6">d6</button>
+    </div>
+
+    <div class="dice-d20" id="dice-face">20</div>
+
+    <div class="dice-modifier-row">
+      <span>Modifier: </span>
+      <span class="dice-modifier" id="dice-modifier-display">+0</span>
+    </div>
+
+    <div id="dice-result-area" class="dice-result-area hidden">
+      <div class="dice-result-line">
+        Tổng: <span class="dice-total-val" id="dice-total">—</span>
+      </div>
+      <div id="dice-interpretation" class="dice-interpretation">—</div>
+    </div>
+
+    <div class="dice-btn-row">
+      <button id="roll-btn-confirm" class="btn-dice-roll">🎲 TUNG!</button>
+      <button id="dice-close-btn" class="btn-dice-close">✕</button>
+    </div>
+  </div>
+  <div id="dice-particles"></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODALS                                                       -->
+<!-- ============================================================ -->
+
+<!-- Inventory Modal -->
+<div id="inventory-modal" class="modal">
+  <div class="modal-box modal-large">
+    <div class="modal-header">
+      <h2>📦 Túi Đồ</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body inventory-layout">
+      <div class="inv-main">
+        <h3>Vật phẩm</h3>
+        <div id="inventory-grid" class="inventory-grid"></div>
+      </div>
+      <div class="inv-side">
+        <h3>Trang bị đang dùng</h3>
+        <div class="equip-slots">
+          <div class="equip-slot"><span>⚔ Vũ khí:</span><strong id="equip-weapon">—</strong></div>
+          <div class="equip-slot"><span>🛡 Giáp:</span><strong id="equip-armor">—</strong></div>
+          <div class="equip-slot"><span>💍 Phụ kiện:</span><strong id="equip-accessory">—</strong></div>
+          <div class="equip-slot"><span>🤚 Tay trái:</span><strong id="equip-offhand">—</strong></div>
+        </div>
+        <div id="item-detail" class="item-detail">
+          <p class="empty-msg">Chọn một vật phẩm để xem chi tiết.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Skills Modal -->
+<div id="skills-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>⚡ Kỹ Năng & Đặc Điểm</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="skills-list" class="skills-list"></div>
+      <div class="race-traits-section">
+        <h4>🧬 Đặc điểm chủng tộc</h4>
+        <ul id="race-traits-list"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Save/Load Modal -->
+<div id="saveload-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>💾 Lưu / Tải Game</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="save-slots">
+        <div class="save-slot" id="save-slot-0"></div>
+        <div class="save-slot" id="save-slot-1"></div>
+        <div class="save-slot" id="save-slot-2"></div>
+      </div>
+      <div class="import-section">
+        <button id="import-save-btn" class="btn-secondary">📁 Nhập file save (.json)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Character Sheet Modal -->
+<div id="character-sheet-modal" class="modal">
+  <div class="modal-content" style="max-width: 500px;">
+    <button class="modal-close">✕</button>
+    <div class="modal-header">📜 Hồ sơ nhân vật</div>
+    <div id="character-sheet-content" class="modal-body" style="font-size: 0.9rem; line-height: 1.5; color: var(--text-secondary);">
+      <!-- Rendered in JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>⚙ Cài Đặt</h2>
+      <button class="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-form">
+        <div class="form-group">
+          <label>Gemini API Key</label>
+          <input type="password" id="settings-api-key" placeholder="AIza..." class="api-input">
+          <small>Lấy tại <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></small>
+        </div>
+        <div class="form-group">
+          <label>Model AI</label>
+          <select id="settings-model" class="model-select">
+            <option value="gemini-3.8-flash">Gemini 3.8 Flash (Khuyên dùng - Cân bằng)</option>
+            <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite (Nhanh nhất)</option>
+            <option value="gemini-3.1-pro">Gemini 3.1 Pro (Suy luận nâng cao)</option>
+          </select>
+        </div>
+        <button id="save-settings-btn" class="btn-primary">💾 Lưu cài đặt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- AI ASSISTANT WIDGET                                          -->
+<!-- ============================================================ -->
+<button id="assistant-fab" class="assistant-fab" title="Trợ lý AI (Hỏi đáp)">🤖</button>
+
+<div id="assistant-panel" class="assistant-panel">
+  <div class="assistant-header">
+    <div class="assistant-title">🤖 Trợ Lý Thông Thái</div>
+    <button id="assistant-close-btn" class="assistant-close-btn">✕</button>
+  </div>
+  <div id="assistant-chat" class="assistant-chat">
+    <div class="assistant-msg ai-msg">Xin chào! Tôi là Trợ lý AI. Bạn cần làm rõ thông tin gì về thế giới, luật chơi hay diễn biến câu chuyện? (Tôi sẽ không can thiệp vào game).</div>
+  </div>
+  <div class="assistant-input-area">
+    <input type="text" id="assistant-input" placeholder="Hỏi trợ lý...">
+    <button id="assistant-send-btn">Gửi</button>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+<!-- ============================================================ -->
+<!-- SCRIPTS                                                      -->
+<!-- ============================================================ -->
+<script src="js/prompts.js"></script>
+<script src="js/game.js"></script>
+<script src="js/dice.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/character.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+// Live char count
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('player-input');
+  const counter = document.getElementById('char-count');
+  if (input && counter) {
+    input.addEventListener('input', () => {
+      counter.textContent = `${input.value.length}/500`;
+    });
+  }
+
+  // Init TTS speed bar
+  UI.TTS.initSpeedBar();
+
+  // Start screen particles
+  const container = document.getElementById('start-particles');
+  if (container) {
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'star-particle';
+      p.style.cssText = `
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        animation-delay: ${Math.random() * 5}s;
+        animation-duration: ${3 + Math.random() * 4}s;
+        width: ${1 + Math.random() * 2}px;
+        height: ${1 + Math.random() * 2}px;
+      `;
+      container.appendChild(p);
+    }
+  }
+
+  // Update NPC list when game is active
+  setInterval(() => {
+    const npcList = document.getElementById('npc-list');
+    const turnDisplay = document.getElementById('turn-display');
+    if (npcList && GameState.npcMemory) {
+      const npcs = Object.keys(GameState.npcMemory);
+      if (npcs.length > 0) {
+        npcList.innerHTML = npcs.map(n => `<div class="npc-item">👤 ${n}</div>`).join('');
+      }
+    }
+    if (turnDisplay) {
+      turnDisplay.textContent = GameState.turnCount || 0;
+    }
+  }, 2000);
+});
+</script>
+
+</body>
+</html>

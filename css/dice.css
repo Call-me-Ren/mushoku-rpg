@@ -1,0 +1,311 @@
+/* ============================================================
+   DICE.CSS — Dice Roll Animation & Overlay
+   ============================================================ */
+
+/* ---- Overlay ---- */
+.dice-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(6px);
+}
+
+.dice-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ---- Container ---- */
+.dice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: 1;
+}
+
+/* ---- Context text ---- */
+.dice-context-text {
+  font-family: var(--font-heading);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  max-width: 320px;
+}
+
+/* ---- Dice Type Toggle ---- */
+.dice-type-toggle {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 4px;
+}
+.dice-toggle-btn {
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dice-toggle-btn:hover {
+  color: var(--text-primary);
+}
+.dice-toggle-btn.active {
+  background: var(--gold-primary);
+  color: #000;
+  box-shadow: 0 0 10px rgba(201, 168, 76, 0.4);
+}
+
+/* ---- D20 Die ---- */
+.dice-d20 {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(145deg, #1a0a3a, #2d1065);
+  border: 2px solid rgba(171, 71, 188, 0.6);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--xp-bright);
+  box-shadow:
+    0 0 30px rgba(106, 27, 154, 0.4),
+    0 0 60px rgba(106, 27, 154, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  position: relative;
+  transition: all 0.3s ease;
+  clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+  background-clip: padding-box;
+  user-select: none;
+}
+
+/* Redefine for hexagonal shape */
+.dice-d20 {
+  clip-path: none;
+  border-radius: 18px;
+  transform: rotate(0deg);
+}
+
+/* ---- D6 Die ---- */
+.dice-d6 {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(145deg, #2a2a2a, #4a4a4a);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+/* ---- Spin Animation ---- */
+@keyframes diceSpin {
+  0%   { transform: rotate(0deg) scale(1); }
+  10%  { transform: rotate(-15deg) scale(1.05); }
+  30%  { transform: rotate(180deg) scale(1.1); }
+  50%  { transform: rotate(360deg) scale(1.05); }
+  70%  { transform: rotate(540deg) scale(1.1); }
+  90%  { transform: rotate(700deg) scale(1.05); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+
+@keyframes diceShake {
+  0%, 100% { transform: translate(0,0) rotate(0deg); }
+  10% { transform: translate(-4px,-4px) rotate(-3deg); }
+  20% { transform: translate(4px,-4px) rotate(3deg); }
+  30% { transform: translate(-4px,4px) rotate(-3deg); }
+  40% { transform: translate(4px,4px) rotate(3deg); }
+  50% { transform: translate(-4px,-2px) rotate(-2deg); }
+  60% { transform: translate(4px,2px) rotate(2deg); }
+  70% { transform: translate(-2px,-4px) rotate(-1deg); }
+  80% { transform: translate(2px,4px) rotate(1deg); }
+  90% { transform: translate(-2px,2px) rotate(-1deg); }
+}
+
+.dice-d20.spinning, .dice-d6.spinning {
+  animation: diceShake 0.08s ease-in-out infinite, diceSpin 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  box-shadow:
+    0 0 50px rgba(106, 27, 154, 0.7),
+    0 0 100px rgba(106, 27, 154, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Result colors */
+.dice-d20.result-crit-fail, .dice-d6.result-crit-fail {
+  background: linear-gradient(145deg, #3a0a0a, #650505);
+  border-color: rgba(198, 40, 40, 0.8);
+  color: #ff1744;
+  box-shadow:
+    0 0 30px rgba(198, 40, 40, 0.6),
+    0 0 60px rgba(198, 40, 40, 0.3);
+  animation: barPulse 0.5s ease-in-out infinite;
+}
+
+.dice-d20.result-crit-success, .dice-d6.result-crit-success {
+  background: linear-gradient(145deg, #2a2200, #665500);
+  border-color: rgba(255, 215, 0, 0.9);
+  color: #ffd700;
+  box-shadow:
+    0 0 30px rgba(255, 215, 0, 0.6),
+    0 0 60px rgba(255, 215, 0, 0.3);
+  animation: glowPulse 0.5s ease-in-out infinite;
+}
+
+.dice-d20.result-fail, .dice-d6.result-fail { border-color: rgba(198, 40, 40, 0.5); color: #ef5350; }
+.dice-d20.result-partial, .dice-d6.result-partial { border-color: rgba(255, 111, 0, 0.5); color: #ffa726; }
+.dice-d20.result-success, .dice-d6.result-success { border-color: rgba(102, 187, 106, 0.5); color: #66bb6a; }
+.dice-d20.result-great, .dice-d6.result-great { border-color: var(--gold-dim); color: var(--gold-bright); }
+.dice-d20.result-perfect, .dice-d6.result-perfect {
+  border-color: rgba(255, 215, 0, 0.7);
+  color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+/* ---- Modifier row ---- */
+.dice-modifier-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.dice-modifier {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold-bright);
+}
+
+/* ---- Result area ---- */
+.dice-result-area {
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+
+.dice-result-line {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.dice-total-val {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.dice-interpretation {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.dice-interpretation.crit-fail { color: #ff1744; text-shadow: 0 0 15px rgba(255, 23, 68, 0.6); }
+.dice-interpretation.crit-success { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
+.dice-interpretation.fail { color: #ef5350; }
+.dice-interpretation.partial { color: #ffa726; }
+.dice-interpretation.success { color: #66bb6a; }
+.dice-interpretation.great { color: var(--gold-bright); }
+.dice-interpretation.perfect { color: #ffd700; }
+
+/* ---- Buttons ---- */
+.dice-btn-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-dice-roll {
+  background: linear-gradient(135deg, #4a0f7a, #7b1fa2);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(171, 71, 188, 0.6);
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 20px rgba(123, 31, 162, 0.4);
+  transition: all 0.2s;
+}
+.btn-dice-roll:hover {
+  background: linear-gradient(135deg, #5e1fa0, #9c27b0);
+  box-shadow: 0 0 30px rgba(156, 39, 176, 0.6);
+  transform: translateY(-2px);
+}
+.btn-dice-roll:active { transform: translateY(0); }
+.btn-dice-roll:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-dice-close {
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  padding: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--border-panel);
+  width: 40px; height: 40px;
+}
+.btn-dice-close:hover { color: var(--text-secondary); border-color: var(--border); }
+
+/* ---- Particles ---- */
+#dice-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+@keyframes particleBurst {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: particleBurst 0.8s ease-out forwards;
+}
+
+/* ---- Crit flash effects ---- */
+@keyframes critSuccessFlash {
+  0% { background: rgba(0,0,0,0.88); }
+  25% { background: rgba(255, 215, 0, 0.15); }
+  100% { background: rgba(0,0,0,0.88); }
+}
+@keyframes critFailFlash {
+  0% { background: rgba(0,0,0,0.88); }
+  25% { background: rgba(198, 40, 40, 0.2); }
+  100% { background: rgba(0,0,0,0.88); }
+}
+
+.dice-overlay.crit-success-flash { animation: critSuccessFlash 0.5s ease forwards; }
+.dice-overlay.crit-fail-flash { animation: critFailFlash 0.5s ease forwards; }
