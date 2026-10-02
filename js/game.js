@@ -242,6 +242,7 @@ const GameState = {
       // Trim chat history to keep last 20 exchanges
       if (this.chatHistory.length > 40) {
         this.chatHistory = this.chatHistory.slice(-40);
+        this._needsChatRefresh = true;
       }
     }
   },

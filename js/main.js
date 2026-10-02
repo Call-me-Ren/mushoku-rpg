@@ -104,14 +104,19 @@ const App = {
           try {
             const parsed = JSON.parse(msg.parts[0].text);
             const realIndex = GameState.chatHistory.length - lastFew.length + idx;
-            UI.addDMMessage(parsed.narrative || msg.parts[0].text, null, realIndex);
-
-            // Cố gắng khôi phục choices/suggested_actions từ tin nhắn cuối cùng
+            const isLast = (idx === lastFew.length - 1) && (realIndex === GameState.chatHistory.length - 1);
+            let choices = null;
+            
+            // Khôi phục choices/suggested_actions từ tin nhắn cuối cùng
             if (parsed.choices && parsed.choices.length > 0) {
               recoveredChoices = parsed.choices;
+              if (isLast) choices = parsed.choices;
             } else if (parsed.suggested_actions && parsed.suggested_actions.length > 0) {
               recoveredChoices = parsed.suggested_actions;
+              if (isLast) choices = parsed.suggested_actions;
             }
+            
+            UI.addDMMessage(parsed.narrative || msg.parts[0].text, choices, realIndex);
           } catch (_) {
             const realIndex = GameState.chatHistory.length - lastFew.length + idx;
             UI.addDMMessage(msg.parts[0].text, null, realIndex);
@@ -466,6 +471,12 @@ const App = {
       UI.setLoading(false);
 
       UI.addDMMessage(response.narrative, response.choices || response.suggested_actions, GameState.chatHistory.length - 1);
+      
+      if (GameState._needsChatRefresh) {
+        this.refreshChatHistory();
+        GameState._needsChatRefresh = false;
+      }
+
       UI.updateSuggestedActions(response.choices || response.suggested_actions);
       UI.updateCharacterPanel();
       UI.appendToLog(action);
