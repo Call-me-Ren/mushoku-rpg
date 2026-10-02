@@ -404,14 +404,16 @@
 
         <select id="bgm-select" style="width:100%; padding: 6px; margin-bottom: 8px; background: var(--bg-dark); color: #fff; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;">
           <option value="">🔇 Tắt nhạc nền</option>
-          <option value="https://www.youtube.com/watch?v=S212XpQ80-c">Phiêu lưu kỳ ảo (Bình yên)</option>
-          <option value="https://www.youtube.com/watch?v=aG42ZlUet24">Quán trọ ồn ào (Tavern)</option>
-          <option value="https://www.youtube.com/watch?v=xS5Qz62aOck">Chiến đấu kịch tính (Combat)</option>
-          <option value="custom">🔗 Dùng Link tùy chỉnh (Youtube/MP3)</option>
+          <option value="adventure">🌄 Phiêu lưu kỳ ảo</option>
+          <option value="tavern">🍺 Quán trọ ồn ào</option>
+          <option value="combat">⚔️ Chiến đấu kịch tính</option>
+          <option value="forest">🌲 Rừng sâu huyền bí</option>
+          <option value="mystery">🔮 Bí ẩn & Ma thuật</option>
+          <option value="custom">🔗 Dùng Link MP3 tùy chỉnh</option>
         </select>
         
         <div id="custom-bgm-container" style="display:none; gap: 5px;">
-          <input type="text" id="bgm-link" placeholder="Nhập link Youtube/MP3..." style="flex:1; padding: 6px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 4px; color: #fff; font-size: 0.8rem;">
+          <input type="text" id="bgm-link" placeholder="Dán link MP3 trực tiếp vào đây (VD: https://...mp3)" style="flex:1; padding: 6px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 4px; color: #fff; font-size: 0.8rem;">
           <button id="bgm-play-btn" style="background: var(--gold-primary); color: #000; border: none; padding: 0 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">▶</button>
         </div>
       </div>
@@ -627,10 +629,6 @@
 <!-- ============================================================ -->
 <!-- SCRIPTS                                                      -->
 <!-- ============================================================ -->
-<!-- Audio Player (Hidden) -->
-<div id="yt-player" style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none;"></div>
-
-<script src="https://www.youtube.com/iframe_api"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="js/prompts.js"></script>
 <script src="js/game.js"></script>

@@ -1,31 +1,51 @@
+/**
+ * AudioManager — HTML5 Audio BGM system
+ * Dùng HTML5 <audio> với link MP3 trực tiếp.
+ * Preset tracks từ nguồn free (Pixabay CDN - không cần CORS, không bị chặn).
+ */
 window.AudioManager = {
-  ytPlayer: null,
-  isApiReady: false,
-  currentVid: null,
+  audio: null,
   volume: parseFloat(localStorage.getItem('bgm_volume') || '0.2'),
-  
-  init() {
-    const select = document.getElementById('bgm-select');
-    const volSlider = document.getElementById('bgm-volume');
-    const customContainer = document.getElementById('custom-bgm-container');
-    const customLink = document.getElementById('bgm-link');
-    const playBtn = document.getElementById('bgm-play-btn');
+  currentUrl: null,
 
+  // Danh sách nhạc nền miễn phí, trực tiếp (MP3 CDN)
+  PRESETS: {
+    'adventure': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_5985524d53.mp3',
+    'tavern':    'https://cdn.pixabay.com/download/audio/2022/10/30/audio_b3c7a75f10.mp3',
+    'combat':    'https://cdn.pixabay.com/download/audio/2023/03/09/audio_83aa4a7462.mp3',
+    'forest':    'https://cdn.pixabay.com/download/audio/2022/11/22/audio_5a31d9e6e5.mp3',
+    'mystery':   'https://cdn.pixabay.com/download/audio/2022/10/25/audio_e0b2e73e62.mp3',
+  },
+
+  init() {
+    // Tạo HTML5 Audio element
+    this.audio = new Audio();
+    this.audio.loop = true;
+    this.audio.volume = this.volume;
+
+    this.audio.addEventListener('error', (e) => {
+      console.error('BGM Error:', e);
+      if (window.UI) UI.showToast('Không thể phát nhạc. Thử link MP3 trực tiếp khác.', 'error');
+    });
+
+    // Volume slider
+    const volSlider = document.getElementById('bgm-volume');
     if (volSlider) {
       volSlider.value = this.volume;
       volSlider.addEventListener('input', (e) => {
         this.volume = parseFloat(e.target.value);
         localStorage.setItem('bgm_volume', this.volume);
-        this._updateVolume();
+        if (this.audio) this.audio.volume = this.volume;
       });
     }
 
+    // Preset select
+    const select = document.getElementById('bgm-select');
     if (select) {
-      const savedBgm = localStorage.getItem('bgm_choice');
-      if (savedBgm) {
-        select.value = savedBgm;
+      const saved = localStorage.getItem('bgm_choice') || '';
+      if (saved && [...select.options].find(o => o.value === saved)) {
+        select.value = saved;
       }
-      
       this._handleSelectChange(select.value);
 
       select.addEventListener('change', (e) => {
@@ -34,109 +54,61 @@ window.AudioManager = {
       });
     }
 
+    // Custom link play button
+    const playBtn = document.getElementById('bgm-play-btn');
+    const customLink = document.getElementById('bgm-link');
     if (playBtn && customLink) {
+      const saved = localStorage.getItem('bgm_custom_url') || '';
+      if (saved) customLink.value = saved;
+
       playBtn.addEventListener('click', () => {
-        this.playCustom(customLink.value);
+        const url = customLink.value.trim();
+        if (!url) return;
+        localStorage.setItem('bgm_custom_url', url);
+        this.play(url);
       });
     }
-    
-    // Check if API is already loaded
-    if (window.YT && window.YT.Player) {
-      this._initYTPlayer();
-    }
-  },
-
-  _initYTPlayer() {
-    if (this.ytPlayer) return; // Already initialized
-    this.isApiReady = true;
-    this.ytPlayer = new YT.Player('yt-player', {
-      height: '1',
-      width: '1',
-      playerVars: {
-        autoplay: 1,
-        loop: 1,
-        controls: 0,
-        showinfo: 0,
-        autohide: 1,
-        modestbranding: 1,
-        origin: window.location.origin
-      },
-      events: {
-        onReady: (e) => {
-          this._updateVolume();
-          if (this.currentVid) {
-            this.ytPlayer.loadVideoById(this.currentVid);
-          }
-        },
-        onStateChange: (e) => {
-          if (e.data === YT.PlayerState.ENDED) {
-            this.ytPlayer.playVideo();
-          }
-        },
-        onError: (e) => {
-          console.error("YouTube Player Error:", e.data);
-          if (window.UI) UI.showToast('Không thể phát bài hát này (có thể do bản quyền).', 'error');
-        }
-      }
-    });
   },
 
   _handleSelectChange(val) {
     const customContainer = document.getElementById('custom-bgm-container');
     if (!customContainer) return;
-    
+
     if (val === 'custom') {
       customContainer.style.display = 'flex';
       this.stop();
-    } else if (val === '') {
+    } else if (val === '' || !val) {
       customContainer.style.display = 'none';
       this.stop();
     } else {
       customContainer.style.display = 'none';
-      this.playCustom(val);
+      const url = this.PRESETS[val] || val;
+      this.play(url);
     }
   },
 
-  playCustom(link) {
-    if (!link) return;
-    
-    let vidId = '';
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = link.match(regExp);
-    if (match && match[2].length === 11) {
-      vidId = match[2];
-    } else if (link.length === 11) {
-      vidId = link; // User pasted ID
-    }
+  play(url) {
+    if (!url || !this.audio) return;
+    this.currentUrl = url;
+    this.audio.pause();
+    this.audio.src = url;
+    this.audio.volume = this.volume;
+    this.audio.load();
 
-    if (vidId) {
-      this.currentVid = vidId;
-      if (this.isApiReady && this.ytPlayer && this.ytPlayer.loadVideoById) {
-        this.ytPlayer.loadVideoById(vidId);
-        this._updateVolume();
-      }
-    } else {
-      if (window.UI) UI.showToast('Link Youtube không hợp lệ.', 'error');
+    const playPromise = this.audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(err => {
+        console.error('BGM play error:', err);
+        if (window.UI) UI.showToast('Trình duyệt chặn tự động phát. Hãy nhấn ▶ một lần để bắt đầu.', 'warning');
+      });
     }
   },
 
   stop() {
-    this.currentVid = null;
-    if (this.isApiReady && this.ytPlayer && this.ytPlayer.stopVideo) {
-      this.ytPlayer.stopVideo();
+    this.currentUrl = null;
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.src = '';
     }
-  },
-
-  _updateVolume() {
-    if (this.isApiReady && this.ytPlayer && this.ytPlayer.setVolume) {
-      this.ytPlayer.setVolume(this.volume * 100);
-    }
-  }
-};
-
-// Global callback for YouTube API
-window.onYouTubeIframeAPIReady = function() {
-  if (window.AudioManager) {
-    window.AudioManager._initYTPlayer();
   }
 };
