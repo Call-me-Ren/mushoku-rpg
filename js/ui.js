@@ -719,6 +719,7 @@ const UI = {
   _loadSlot(slot) {
     const data = GameState.loadFromSlot(slot);
     if (data) {
+      this.showScreen('game-screen');
       this.updateCharacterPanel();
       if (typeof App.refreshChatHistory === 'function') {
         App.refreshChatHistory();

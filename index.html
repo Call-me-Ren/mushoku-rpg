@@ -508,6 +508,15 @@
       <button class="modal-close">✕</button>
     </div>
     <div class="modal-body">
+      <div class="cloud-sync-section" style="background: rgba(201, 168, 76, 0.1); border: 1px solid var(--border-gold); padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+        <h3 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--text-gold);">☁️ Đồng bộ đám mây (Google Drive)</h3>
+        <div id="cloud-status" style="margin-bottom: 10px; font-size: 0.9rem;">Chưa đăng nhập.</div>
+        <button id="btn-google-login" class="btn-primary" onclick="DriveSync.login()" style="width: auto; padding: 8px 15px;">Đăng nhập Google</button>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+          <button id="btn-sync-up" class="btn-primary" onclick="DriveSync.uploadSave()" style="display: none; background: #2e7d32;">Lưu tất cả lên Cloud</button>
+          <button id="btn-sync-down" class="btn-primary" onclick="DriveSync.downloadSave()" style="display: none; background: #1565c0;">Tải tất cả từ Cloud</button>
+        </div>
+      </div>
       <div class="save-slots">
         <div class="save-slot" id="save-slot-0"></div>
         <div class="save-slot" id="save-slot-1"></div>
@@ -584,8 +593,10 @@
 <!-- ============================================================ -->
 <!-- SCRIPTS                                                      -->
 <!-- ============================================================ -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="js/prompts.js"></script>
 <script src="js/game.js"></script>
+<script src="js/drive.js"></script>
 <script src="js/dice.js"></script>
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
