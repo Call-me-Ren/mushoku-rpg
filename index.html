@@ -390,31 +390,28 @@
 
       <!-- Âm thanh & Nhạc nền -->
       <div class="audio-box" style="margin-top: 15px;">
-        <div class="world-label">🎵 Âm thanh & Nhạc nền</div>
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-          <span style="font-size: 0.85rem; color: #a0aec0;">Giọng đọc (TTS)</span>
-          <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1" style="width: 100px; accent-color: var(--gold-primary);">
-        </div>
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-          <span style="font-size: 0.85rem; color: #a0aec0;">Nhạc nền (BGM)</span>
-          <input type="range" id="bgm-volume" min="0" max="1" step="0.05" value="0.2" style="width: 100px; accent-color: var(--gold-primary);">
-        </div>
+        <div class="world-label">🎵 Nhạc nền (BGM)</div>
 
         <select id="bgm-select" style="width:100%; padding: 6px; margin-bottom: 8px; background: var(--bg-dark); color: #fff; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;">
           <option value="">🔇 Tắt nhạc nền</option>
           <option value="adventure">🌄 Phiêu lưu kỳ ảo</option>
-          <option value="tavern">🍺 Quán trọ ồn ào</option>
+          <option value="tavern">🍺 Quán trọ ấm cúng</option>
           <option value="combat">⚔️ Chiến đấu kịch tính</option>
-          <option value="forest">🌲 Rừng sâu huyền bí</option>
-          <option value="mystery">🔮 Bí ẩn & Ma thuật</option>
-          <option value="custom">🔗 Dùng Link MP3 tùy chỉnh</option>
+          <option value="acoustic">🌙 Tâm tình buổi tối</option>
+          <option value="custom">🔗 Link tùy chỉnh (MP3/OGG)</option>
         </select>
-        
-        <div id="custom-bgm-container" style="display:none; gap: 5px;">
-          <input type="text" id="bgm-link" placeholder="Dán link MP3 trực tiếp vào đây (VD: https://...mp3)" style="flex:1; padding: 6px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 4px; color: #fff; font-size: 0.8rem;">
-          <button id="bgm-play-btn" style="background: var(--gold-primary); color: #000; border: none; padding: 0 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">▶</button>
+
+        <!-- Trình phát nhạc có giao diện - user có thể bấm play -->
+        <audio id="bgm-player" controls loop style="width:100%; height: 32px; margin-bottom: 8px; accent-color: var(--gold-primary); border-radius: 4px;"></audio>
+
+        <div id="custom-bgm-container" style="display:none; flex-direction:column; gap: 5px;">
+          <input type="text" id="bgm-link" placeholder="Dán link MP3 trực tiếp (https://...mp3)" style="width:100%; box-sizing:border-box; padding: 6px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 4px; color: #fff; font-size: 0.8rem;">
+          <button id="bgm-play-btn" style="background: var(--gold-primary); color: #000; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold; width:100%;">▶ Phát nhạc</button>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
+          <span style="font-size: 0.75rem; color: #a0aec0;">Giọng đọc (TTS)</span>
+          <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1" style="width: 100px; accent-color: var(--gold-primary);">
         </div>
       </div>
 
