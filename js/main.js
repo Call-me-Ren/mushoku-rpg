@@ -116,10 +116,10 @@ const App = {
               if (isLast) choices = parsed.suggested_actions;
             }
             
-            UI.addDMMessage(parsed.narrative || msg.parts[0].text, choices, realIndex);
+            UI.addDMMessage(parsed.narrative || msg.parts[0].text, choices, realIndex, false);
           } catch (_) {
             const realIndex = GameState.chatHistory.length - lastFew.length + idx;
-            UI.addDMMessage(msg.parts[0].text, null, realIndex);
+            UI.addDMMessage(msg.parts[0].text, null, realIndex, false);
           }
         } else if (msg.role === 'user') {
           const text = msg.parts[0].text;
@@ -421,7 +421,14 @@ const App = {
       const response = await GeminiAPI.startGame();
       UI.setLoading(false);
 
-      UI.addDMMessage(response.narrative, response.choices || response.suggested_actions);
+      let autoPlayText = response.narrative;
+      if (response.requires_roll) {
+        const modText = response.roll_modifier_text || '+0';
+        const targetDC = response.target_dc || 10;
+        autoPlayText += `. Mời bạn tung xúc xắc. Lợi thế là ${modText}. Cần đạt tổng ${targetDC} trở lên để thành công.`;
+      }
+
+      UI.addDMMessage(response.narrative, response.choices || response.suggested_actions, -1, autoPlayText);
       UI.updateSuggestedActions(response.choices || response.suggested_actions);
       UI.updateCharacterPanel();
 
@@ -470,7 +477,14 @@ const App = {
       const response = await GeminiAPI.sendMessage(action, diceResult);
       UI.setLoading(false);
 
-      UI.addDMMessage(response.narrative, response.choices || response.suggested_actions, GameState.chatHistory.length - 1);
+      let autoPlayText = response.narrative;
+      if (response.requires_roll) {
+        const modText = response.roll_modifier_text || '+0';
+        const targetDC = response.target_dc || 10;
+        autoPlayText += `. Mời bạn tung xúc xắc. Lợi thế là ${modText}. Cần đạt tổng ${targetDC} trở lên để thành công.`;
+      }
+
+      UI.addDMMessage(response.narrative, response.choices || response.suggested_actions, GameState.chatHistory.length - 1, autoPlayText);
       
       if (GameState._needsChatRefresh) {
         this.refreshChatHistory();
@@ -613,7 +627,15 @@ const App = {
       try {
         const response = await GeminiAPI.startGame();
         UI.setLoading(false);
-        UI.addDMMessage(response.narrative);
+        
+        let autoPlayText = response.narrative;
+        if (response.requires_roll) {
+          const modText = response.roll_modifier_text || '+0';
+          const targetDC = response.target_dc || 10;
+          autoPlayText += `. Mời bạn tung xúc xắc. Lợi thế là ${modText}. Cần đạt tổng ${targetDC} trở lên để thành công.`;
+        }
+        
+        UI.addDMMessage(response.narrative, response.suggested_actions, -1, autoPlayText);
         UI.updateSuggestedActions(response.suggested_actions);
         UI.updateCharacterPanel();
       } catch (e) {

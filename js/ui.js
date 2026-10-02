@@ -13,6 +13,7 @@ const UI = {
     _speaking: false,
     _rate: parseFloat(localStorage.getItem('tts_rate') || '1'),
     _autoScroll: localStorage.getItem('tts_autoscroll') !== 'false',
+    _autoTTS: localStorage.getItem('tts_auto') === 'true',
     _activeContainer: null,
     _currentHighlight: null,
     _wordSpans: [],
@@ -214,6 +215,18 @@ const UI = {
           scrollBtn.classList.toggle('active', this._autoScroll);
         });
       }
+
+      // Setup Auto TTS toggle button
+      const autoBtn = document.getElementById('tts-auto-btn');
+      if (autoBtn) {
+        autoBtn.classList.toggle('active', this._autoTTS);
+        autoBtn.addEventListener('click', () => {
+          this._autoTTS = !this._autoTTS;
+          localStorage.setItem('tts_auto', this._autoTTS);
+          autoBtn.classList.toggle('active', this._autoTTS);
+          UI.showToast(this._autoTTS ? 'Đã bật tự động đọc (Auto TTS)' : 'Đã tắt tự động đọc', 'info');
+        });
+      }
     },
   },
 
@@ -315,7 +328,7 @@ const UI = {
   },
 
   // ---- STORY/CHAT ----
-  addDMMessage(narrative, choices, historyIndex = -1) {
+  addDMMessage(narrative, choices, historyIndex = -1, autoPlayText = null) {
     const chat = document.getElementById('story-chat');
     const msg = document.createElement('div');
     msg.className = 'chat-message dm-message';
@@ -375,6 +388,14 @@ const UI = {
     }
 
     this._scrollToBottom();
+
+    // Auto Play TTS
+    if (this.TTS._autoTTS && autoPlayText !== false) {
+      setTimeout(() => {
+        const textToRead = typeof autoPlayText === 'string' ? autoPlayText : narrative;
+        this.TTS.speak(textToRead, ttsBtn);
+      }, 500);
+    }
   },
 
   // Called when player clicks a choice button
