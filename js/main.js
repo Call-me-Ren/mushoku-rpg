@@ -534,6 +534,95 @@ const App = {
     );
     UI.showToast('Quản trò yêu cầu tung xúc xắc!', 'info');
   },
+
+  triggerDiceRoll() {
+    if (!this.pendingDiceRoll) {
+      // Manual roll without DM request
+      DiceSystem.animateRoll(0, 'Roll tự do d20', null, (result) => {
+        UI.addDiceResultMessage(result);
+      });
+      return;
+    }
+    const { modifier, context, targetDC } = this.pendingDiceRoll;
+    DiceSystem.animateRoll(modifier, context, targetDC, async (result) => {
+      UI.addDiceResultMessage(result);
+      
+      this.pendingDiceRoll = null;
+      
+      const btn = document.getElementById('roll-dice-btn');
+      const input = document.getElementById('player-input');
+      const sendBtn = document.getElementById('send-btn');
+      if (btn) {
+        btn.classList.remove('roll-required');
+        btn.textContent = '🎲 Dice';
+      }
+      if (input) {
+        input.disabled = false;
+        input.placeholder = "Mô tả hành động của bạn... (Enter để gửi, Shift+Enter xuống dòng)";
+      }
+      if (sendBtn) {
+        sendBtn.disabled = false;
+      }
+      
+      await this._sendAction("[Đã đổ xúc xắc theo yêu cầu]", result);
+    });
+  },
+
+  // ---- XỬ LÝ LỖI QUAN TRÒ + NÚT THỬ LẠI ----
+  _lastFailedAction: null,
+  _lastFailedDice: null,
+
+  _handleDMError(errMsg, action, diceResult) {
+    this._lastFailedAction = action;
+    this._lastFailedDice = diceResult;
+
+    // Hiển thị thông báo lỗi kèm nút Thử lại
+    const errorHtml = `
+      <div style="text-align:center;">
+        <div style="color:#ef5350;margin-bottom:10px;">⚠️ Lỗi kết nối Gemini: ${errMsg}</div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <button onclick="App._retryLastAction()" style="background:rgba(201,168,76,0.15);border:1px solid #c9a84c;color:#c9a84c;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:0.85rem;">🔄 Thử lại ngay</button>
+          <button onclick="App._retryWithNewModel()" style="background:rgba(21,101,192,0.15);border:1px solid #42a5f5;color:#42a5f5;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:0.85rem;">⚙ Đổi model rồi thử lại</button>
+        </div>
+      </div>`; 
+    const errorEl = document.createElement('div');
+    errorEl.className = 'chat-message system-message error';
+    errorEl.innerHTML = `<div class="message-content">${errorHtml}</div>`;
+    document.getElementById('story-chat').appendChild(errorEl);
+    errorEl.scrollIntoView({ behavior: 'smooth' });
+  },
+
+  async _retryLastAction() {
+    const action = this._lastFailedAction;
+    const dice  = this._lastFailedDice;
+    if (action === null && dice === null) {
+      // Lỗi ở startGame
+      UI.showToast('Đang thử lại mở đầu câu chuyện...', 'success');
+      UI.setLoading(true);
+      try {
+        const response = await GeminiAPI.startGame();
+        UI.setLoading(false);
+        UI.addDMMessage(response.narrative);
+        UI.updateSuggestedActions(response.suggested_actions);
+        UI.updateCharacterPanel();
+      } catch (e) {
+        UI.setLoading(false);
+        this._handleDMError(e.message, null, null);
+      }
+    } else {
+      UI.showToast('Đang thử lại hành động...', 'success');
+      await this._sendAction(action, dice);
+    }
+  },
+
+  async _retryWithNewModel() {
+    // Tự động lưu tiến trình hiện tại
+    if (GameState.character) GameState.saveToSlot(0);
+
+    // Mở settings modal
+    UI.showSettings();
+    UI.showToast('Đã lưu tiến trình! Hãy chọn model khác rồi bấm Lưu cài đặt.', 'success');
+  }
 };
 
 // ---- BOOT ----
