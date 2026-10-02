@@ -200,13 +200,41 @@ const GameState = {
     if (changes.gold_change) {
       c.gold = Math.max(0, c.gold + changes.gold_change);
     }
-    if (changes.items_gained && changes.items_gained.length > 0) {
-      c.inventory.push(...changes.items_gained);
+    if (changes.items_gained && Array.isArray(changes.items_gained)) {
+      changes.items_gained.forEach(item => {
+        let name = '', qty = 1, type = 'misc', desc = '';
+        if (typeof item === 'string') {
+          name = item;
+        } else if (typeof item === 'object') {
+          name = item.name || 'Vật phẩm bí ẩn';
+          qty = item.qty || 1;
+          type = item.type || 'misc';
+          desc = item.desc || '';
+        }
+        
+        // Check if item exists (excluding equipment and magic that shouldn't stack, but for simplicity stack everything by name)
+        const existing = c.inventory.find(i => i.name === name);
+        if (existing) {
+          existing.qty = (existing.qty || 1) + qty;
+        } else {
+          c.inventory.push({ id: name.toLowerCase().replace(/\s+/g, '_'), name, qty, type, desc });
+        }
+      });
     }
-    if (changes.items_lost && changes.items_lost.length > 0) {
-      changes.items_lost.forEach(lostName => {
+
+    if (changes.items_lost && Array.isArray(changes.items_lost)) {
+      changes.items_lost.forEach(item => {
+        let lostName = typeof item === 'string' ? item : (item.name || '');
+        let lostQty = typeof item === 'object' ? (item.qty || 1) : 1;
+        
         const idx = c.inventory.findIndex(i => i.name === lostName || i.id === lostName);
-        if (idx !== -1) c.inventory.splice(idx, 1);
+        if (idx !== -1) {
+          const invItem = c.inventory[idx];
+          invItem.qty = (invItem.qty || 1) - lostQty;
+          if (invItem.qty <= 0) {
+            c.inventory.splice(idx, 1);
+          }
+        }
       });
     }
     if (changes.new_location && changes.new_location !== null) {
@@ -276,6 +304,17 @@ const GameState = {
     try {
       const data = JSON.parse(raw);
       this.character = data.character;
+      
+      // Fix corrupted inventory from old bug
+      if (this.character && Array.isArray(this.character.inventory)) {
+        this.character.inventory = this.character.inventory.map(item => {
+          if (typeof item === 'string') {
+            return { id: item.toLowerCase().replace(/\s+/g, '_'), name: item, qty: 1, type: 'misc', desc: '' };
+          }
+          return item;
+        }).filter(item => item && item.name); // Remove nulls or completely empty items
+      }
+
       this.location = data.location;
       this.npcMemory = data.npcMemory;
       this.storySummary = data.storySummary;
