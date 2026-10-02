@@ -433,7 +433,8 @@ const UI = {
   },
 
   _formatNarrative(text) {
-    // Bold
+    // Xoá các dòng lựa chọn A/B/C/D bị AI viết nhầm vào trong text để tránh trùng lặp
+    text = text.replace(/^[A-D][.:]\s+.*(?:\n|$)/gmi, '');
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     // Italic
     text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');

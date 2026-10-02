@@ -356,7 +356,7 @@ QUY TẮC QUAN TRỌNG:
 - state_changes chỉ áp dụng giá trị THAY ĐỔI (âm = mất, dương = nhận), không phải giá trị tuyệt đối
 - new_location: null nếu không thay đổi địa điểm, hoặc tên địa điểm mới nếu di chuyển
 - npc_updates: object với key là tên NPC, value là thông tin NPC biết về người chơi
-- LUÔN LUÔN đề xuất ĐÚNG 4 lựa chọn trong mảng "choices", bắt đầu bằng "A:", "B:", "C:", "D:". Mỗi lựa chọn phải là hành động cụ thể, rõ ràng, khác nhau về chiến lược (ví dụ: tấn công / phòng thủ / đàm phán / chạy trốn). Đây là lựa chọn hành động cho người chơi, KHÔNG phải gợi ý mơ hồ.
+- LUÔN LUÔN đề xuất ĐÚNG 4 lựa chọn trong mảng "choices", bắt đầu bằng "A:", "B:", "C:", "D:". Mỗi lựa chọn phải là hành động cụ thể, rõ ràng, khác nhau về chiến lược. ĐẶC BIỆT: KHÔNG được viết lại các lựa chọn A/B/C/D vào trong nội dung của "narrative", chỉ được trả về thông qua mảng "choices".
 - Nội dung 18+: Cho phép mô tả chi tiết chiến đấu, thương tích, cái chết, máu me. Không kiêng kị.
 
 ${LORE.worldInfo}
