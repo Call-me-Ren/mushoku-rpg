@@ -388,30 +388,46 @@
         <div class="world-location" id="world-location">—</div>
       </div>
 
-      <!-- Âm thanh & Nhạc nền -->
+      <!-- Nhạc nền -->
       <div class="audio-box" style="margin-top: 15px;">
-        <div class="world-label">🎵 Nhạc nền (BGM)</div>
+        <div class="world-label">🎵 Nhạc nền & Âm thanh</div>
 
-        <select id="bgm-select" style="width:100%; padding: 6px; margin-bottom: 8px; background: var(--bg-dark); color: #fff; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;">
+        <!-- Chọn nhạc preset -->
+        <select id="bgm-select" style="width:100%; padding: 6px; margin-bottom: 8px; background: var(--bg-dark); color: #fff; border: 1px solid var(--border); border-radius: 6px; font-size: 0.82rem;">
           <option value="">🔇 Tắt nhạc nền</option>
           <option value="adventure">🌄 Phiêu lưu kỳ ảo</option>
           <option value="tavern">🍺 Quán trọ ấm cúng</option>
           <option value="combat">⚔️ Chiến đấu kịch tính</option>
           <option value="acoustic">🌙 Tâm tình buổi tối</option>
-          <option value="custom">🔗 Link tùy chỉnh (MP3/OGG)</option>
+          <option value="custom">🔗 Link tùy chỉnh (MP3)</option>
         </select>
 
-        <!-- Trình phát nhạc có giao diện - user có thể bấm play -->
-        <audio id="bgm-player" controls loop style="width:100%; height: 32px; margin-bottom: 8px; accent-color: var(--gold-primary); border-radius: 4px;"></audio>
-
-        <div id="custom-bgm-container" style="display:none; flex-direction:column; gap: 5px;">
-          <input type="text" id="bgm-link" placeholder="Dán link MP3 trực tiếp (https://...mp3)" style="width:100%; box-sizing:border-box; padding: 6px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 4px; color: #fff; font-size: 0.8rem;">
-          <button id="bgm-play-btn" style="background: var(--gold-primary); color: #000; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-weight: bold; width:100%;">▶ Phát nhạc</button>
+        <!-- Custom player UI -->
+        <div id="bgm-player-ui" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+          <div style="display:flex; align-items:center; gap: 8px; margin-bottom: 8px;">
+            <button id="bgm-play-pause" style="width:36px; height:36px; border-radius:50%; background: var(--gold-primary); color:#000; border:none; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">▶</button>
+            <div style="flex:1; min-width:0;">
+              <div id="bgm-track-name" style="font-size:0.78rem; color: var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Chưa chọn bài nhạc</div>
+              <div id="bgm-status" style="font-size:0.7rem; color: #666; margin-top:2px;">— chọn nhạc bên trên —</div>
+            </div>
+          </div>
+          <!-- Thanh volume BGM -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.75rem; color:#a0aec0; flex-shrink:0;">🎵</span>
+            <input type="range" id="bgm-volume" min="0" max="1" step="0.05" value="0.3" style="flex:1; accent-color: var(--gold-primary);">
+          </div>
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px;">
-          <span style="font-size: 0.75rem; color: #a0aec0;">Giọng đọc (TTS)</span>
-          <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1" style="width: 100px; accent-color: var(--gold-primary);">
+        <!-- Custom link input -->
+        <div id="custom-bgm-container" style="display:none; flex-direction:column; gap:5px; margin-bottom:8px;">
+          <input type="text" id="bgm-link" placeholder="Dán link MP3 trực tiếp (https://...mp3)" style="width:100%; box-sizing:border-box; padding:6px; background:var(--bg-dark); border:1px solid var(--border); border-radius:4px; color:#fff; font-size:0.8rem;">
+          <button id="bgm-load-btn" style="background:var(--gold-primary); color:#000; border:none; padding:6px; border-radius:4px; cursor:pointer; font-weight:bold; width:100%;">▶ Tải & Phát</button>
+        </div>
+
+        <!-- Thanh volume TTS -->
+        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+          <span style="font-size:0.75rem; color:#a0aec0; flex-shrink:0;">🔊 TTS</span>
+          <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1" style="flex:1; accent-color: var(--gold-primary);">
         </div>
       </div>
 
