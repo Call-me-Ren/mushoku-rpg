@@ -40,37 +40,45 @@ window.AudioManager = {
       });
     }
     
-    // YouTube API callback
-    window.onYouTubeIframeAPIReady = () => {
-      this.isApiReady = true;
-      this.ytPlayer = new YT.Player('yt-player', {
-        height: '0',
-        width: '0',
-        playerVars: {
-          autoplay: 0,
-          loop: 1,
-          controls: 0,
-          showinfo: 0,
-          autohide: 1,
-          modestbranding: 1
-        },
-        events: {
-          onReady: (e) => {
-            this._updateVolume();
-            // Start playing if a track was selected before API was ready
-            if (this.currentVid) {
-              this.ytPlayer.loadVideoById(this.currentVid);
-            }
-          },
-          onStateChange: (e) => {
-            // If ended (0), play again for loop
-            if (e.data === YT.PlayerState.ENDED) {
-              this.ytPlayer.playVideo();
-            }
+    // Check if API is already loaded
+    if (window.YT && window.YT.Player) {
+      this._initYTPlayer();
+    }
+  },
+
+  _initYTPlayer() {
+    if (this.ytPlayer) return; // Already initialized
+    this.isApiReady = true;
+    this.ytPlayer = new YT.Player('yt-player', {
+      height: '1',
+      width: '1',
+      playerVars: {
+        autoplay: 1,
+        loop: 1,
+        controls: 0,
+        showinfo: 0,
+        autohide: 1,
+        modestbranding: 1,
+        origin: window.location.origin
+      },
+      events: {
+        onReady: (e) => {
+          this._updateVolume();
+          if (this.currentVid) {
+            this.ytPlayer.loadVideoById(this.currentVid);
           }
+        },
+        onStateChange: (e) => {
+          if (e.data === YT.PlayerState.ENDED) {
+            this.ytPlayer.playVideo();
+          }
+        },
+        onError: (e) => {
+          console.error("YouTube Player Error:", e.data);
+          if (window.UI) UI.showToast('Không thể phát bài hát này (có thể do bản quyền).', 'error');
         }
-      });
-    };
+      }
+    });
   },
 
   _handleSelectChange(val) {
@@ -123,5 +131,12 @@ window.AudioManager = {
     if (this.isApiReady && this.ytPlayer && this.ytPlayer.setVolume) {
       this.ytPlayer.setVolume(this.volume * 100);
     }
+  }
+};
+
+// Global callback for YouTube API
+window.onYouTubeIframeAPIReady = function() {
+  if (window.AudioManager) {
+    window.AudioManager._initYTPlayer();
   }
 };
