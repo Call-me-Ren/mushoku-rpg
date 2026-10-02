@@ -707,6 +707,11 @@ const UI = {
           </div>`;
       }
     }
+    
+    if (typeof App.checkExistingSave === 'function') {
+      App.checkExistingSave();
+    }
+    
     document.getElementById('saveload-modal').classList.add('active');
   },
 
@@ -724,9 +729,25 @@ const UI = {
       }
     }
     
-    // Đánh dấu là vừa load xong để tự động vào game
-    sessionStorage.setItem('rpg_auto_load', 'true');
-    location.reload(); // Refresh toàn bộ trang để reset UI 100%
+    // Tải vào GameState
+    const data = GameState.loadFromSlot(0);
+    if (data) {
+      this.showScreen('game-screen');
+      this.updateCharacterPanel();
+      if (typeof App.refreshChatHistory === 'function') {
+        App.refreshChatHistory();
+      }
+      this.closeAllModals();
+      this.showToast(`Đã tải game từ ô ${slot + 1}!`, 'success');
+      
+      const savedKey = localStorage.getItem('rpg_api_key') || '';
+      if (!savedKey) {
+        setTimeout(() => {
+          this.showToast('Vui lòng nhập Gemini API Key để tiếp tục chơi!', 'warning');
+          this.showSettings();
+        }, 500);
+      }
+    }
   },
 
   _deleteSlot(slot) {
@@ -734,9 +755,16 @@ const UI = {
     
     // Nếu xóa đúng ô hiện tại đang chơi (Ô 1 - Autosave) thì kick ra ngoài
     if (slot === 0 && document.getElementById('game-screen').classList.contains('active')) {
-      location.reload();
+      this.showScreen('start-screen');
+      this.closeAllModals();
+      this.showToast('Đã xóa hành trình hiện tại!', 'warning');
     } else {
       this.showSaveLoad();
+    }
+    
+    // Cập nhật lại banner Tiếp Tục ở ngoài sảnh
+    if (typeof App.checkExistingSave === 'function') {
+      App.checkExistingSave();
     }
   },
 
@@ -747,6 +775,9 @@ const UI = {
       await GameState.importFromFile(file, slot);
       this.showToast(`Đã tải file save vào ô ${slot + 1}!`, 'success');
       this.showSaveLoad();
+      if (typeof App.checkExistingSave === 'function') {
+        App.checkExistingSave();
+      }
     } catch (e) {
       this.showToast('Lỗi: File save không hợp lệ!', 'error');
     }

@@ -36,9 +36,10 @@ const App = {
 
     // Check if auto-save exists
     const autoSave = GameState.getSaveInfo(0);
-    if (autoSave) {
-      const banner = document.getElementById('continue-banner');
-      if (banner) {
+    const banner = document.getElementById('continue-banner');
+    
+    if (banner) {
+      if (autoSave) {
         banner.innerHTML = `
           <div class="continue-content">
             <span>Tiếp tục: <strong>${autoSave.name}</strong> (${autoSave.race} Lv.${autoSave.level}) — ${autoSave.location}</span>
@@ -46,6 +47,8 @@ const App = {
           </div>`;
         banner.classList.remove('hidden');
         document.getElementById('continue-btn').onclick = () => this.continueGame();
+      } else {
+        banner.classList.add('hidden');
       }
     }
   },
