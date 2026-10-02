@@ -89,12 +89,19 @@ const DiceSystem = {
     const diceEl = document.getElementById('dice-face');
     const rollBtn = document.getElementById('roll-btn-confirm');
     const resultArea = document.getElementById('dice-result-area');
+    const fastMode = document.getElementById('fast-dice-checkbox')?.checked;
 
     rollBtn.disabled = true;
-    diceEl.classList.add('spinning');
 
     const isD6 = this._pendingDiceType === 'd6';
     const sides = isD6 ? 6 : 20;
+
+    if (fastMode) {
+      this._finishRoll(isD6, sides, diceEl, resultArea, true);
+      return;
+    }
+
+    diceEl.classList.add('spinning');
 
     // Animate random numbers during spin
     let spinCount = 0;
@@ -103,44 +110,46 @@ const DiceSystem = {
       spinCount++;
       if (spinCount >= 15) {
         clearInterval(spinInterval);
-
-        // Final result
-        const targetDC = this._pendingTargetDC || 15;
-        const result = isD6 ? this.rollD6(this._pendingModifier || 0) : this.rollD20(this._pendingModifier || 0, targetDC);
         diceEl.classList.remove('spinning');
-        diceEl.textContent = result.roll;
-
-        let cls = this.getInterpretationClass(result);
-        if (isD6) {
-          if (result.roll === 1) cls = 'crit-fail';
-          else if (result.roll === 6) cls = 'crit-success';
-          else if (result.total <= 2) cls = 'fail';
-          else if (result.total <= 4) cls = 'partial';
-          else cls = 'success';
-        }
-
-        diceEl.className = `dice-${this._pendingDiceType} result-${cls}`;
-
-        resultArea.classList.remove('hidden');
-        document.getElementById('dice-total').textContent = result.total;
-        document.getElementById('dice-interpretation').textContent = result.interpretation;
-        document.getElementById('dice-interpretation').className = `dice-interpretation ${cls}`;
-
-        // Particle effect for crits
-        if ((isD6 && (result.roll === 1 || result.roll === 6)) || (!isD6 && (result.roll === 1 || result.roll === 20))) {
-          this._triggerCritEffect(isD6 ? result.roll === 6 : result.roll === 20);
-        }
-
-        // Auto-close and callback after 1.5s
-        setTimeout(() => {
-          document.getElementById('dice-overlay').classList.remove('active');
-          if (this._pendingCallback) {
-            this._pendingCallback(result);
-            this._pendingCallback = null;
-          }
-        }, 2000);
+        this._finishRoll(isD6, sides, diceEl, resultArea, false);
       }
     }, 80);
+  },
+
+  _finishRoll(isD6, sides, diceEl, resultArea, isFastMode) {
+    const targetDC = this._pendingTargetDC || 15;
+    const result = isD6 ? this.rollD6(this._pendingModifier || 0) : this.rollD20(this._pendingModifier || 0, targetDC);
+    diceEl.textContent = result.roll;
+
+    let cls = this.getInterpretationClass(result);
+    if (isD6) {
+      if (result.roll === 1) cls = 'crit-fail';
+      else if (result.roll === 6) cls = 'crit-success';
+      else if (result.total <= 2) cls = 'fail';
+      else if (result.total <= 4) cls = 'partial';
+      else cls = 'success';
+    }
+
+    diceEl.className = `dice-${this._pendingDiceType} result-${cls}`;
+
+    resultArea.classList.remove('hidden');
+    document.getElementById('dice-total').textContent = result.total;
+    document.getElementById('dice-interpretation').textContent = result.interpretation;
+    document.getElementById('dice-interpretation').className = `dice-interpretation ${cls}`;
+
+    // Particle effect for crits
+    if ((isD6 && (result.roll === 1 || result.roll === 6)) || (!isD6 && (result.roll === 1 || result.roll === 20))) {
+      this._triggerCritEffect(isD6 ? result.roll === 6 : result.roll === 20);
+    }
+
+    // Auto-close and callback
+    setTimeout(() => {
+      document.getElementById('dice-overlay').classList.remove('active');
+      if (this._pendingCallback) {
+        this._pendingCallback(result);
+        this._pendingCallback = null;
+      }
+    }, isFastMode ? 600 : 2000);
   },
 
   _triggerCritEffect(isSuccess) {

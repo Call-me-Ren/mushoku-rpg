@@ -710,13 +710,22 @@ hr.divider {
 
 /* ---- Game Layout ---- */
 .game-layout {
-  display: grid;
-  grid-template-columns: var(--left-panel-width) 1fr var(--right-panel-width);
+  display: flex;
   gap: 8px;
   padding: 8px;
   flex: 1;
   overflow: hidden;
   min-height: 0;
+}
+.char-panel { width: var(--left-panel-width); flex-shrink: 0; transition: all 0.3s ease; }
+.world-panel { width: var(--right-panel-width); flex-shrink: 0; transition: all 0.3s ease; }
+.story-panel { flex: 1; min-width: 0; transition: all 0.3s ease; }
+.panel.collapsed {
+  width: 0 !important;
+  border-width: 0 !important;
+  opacity: 0;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* ---- Action Log ---- */
