@@ -194,6 +194,19 @@ const UI = {
       }
     },
 
+    setVolume(volume) {
+      this._volume = volume;
+      localStorage.setItem('tts_volume', volume);
+      // Nếu đang đọc thì cancel rồi đọc lại với volume mới
+      if (this._speaking && this._utterance) {
+        const rawText = this._utterance.text;
+        const savedBtn = this._activeBtn;
+        window.speechSynthesis.cancel();
+        this._cleanup();
+        setTimeout(() => UI.TTS.speak(rawText, savedBtn), 80);
+      }
+    },
+
     initSpeedBar() {
       // Setup rate buttons
       const savedRate = this._rate;
@@ -230,18 +243,25 @@ const UI = {
         });
       }
 
-      // Setup TTS Volume Slider
-      const volSlider = document.getElementById('tts-volume');
-      if (volSlider) {
-        volSlider.value = this._volume;
-        volSlider.addEventListener('input', (e) => {
-          this._volume = parseFloat(e.target.value);
-          localStorage.setItem('tts_volume', this._volume);
-          if (this._utterance && this._speaking) {
-            // Cannot change volume while speaking in some browsers, but we can try
-            // or just let it apply to the next sentence
-          }
-        });
+      // Setup TTS Volume Slider — dùng event delegation vì slider nằm trong panel
+      // render sau game-screen nên cần lắng nghe từ document
+      document.addEventListener('input', (e) => {
+        if (e.target && e.target.id === 'tts-volume') {
+          UI.TTS.setVolume(parseFloat(e.target.value));
+        }
+      });
+
+      // Khi game screen hiện ra, sync lại giá trị slider với _volume đã lưu
+      const syncVolSlider = () => {
+        const slider = document.getElementById('tts-volume');
+        if (slider) slider.value = UI.TTS._volume;
+      };
+      // Sync ngay nếu slider đã tồn tại
+      syncVolSlider();
+      // Và sync lại mỗi khi showScreen được gọi (dùng MutationObserver)
+      const gameScreen = document.getElementById('game-screen');
+      if (gameScreen) {
+        new MutationObserver(syncVolSlider).observe(gameScreen, { attributes: true, attributeFilter: ['class'] });
       }
     },
   },
