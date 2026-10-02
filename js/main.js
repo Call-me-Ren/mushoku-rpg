@@ -224,6 +224,15 @@ const App = {
     UI.showToast('⏳ Đã dùng Timestone quay ngược thời gian!', 'info');
   },
 
+  goToMainMenu() {
+    if (GameState.character) {
+      GameState.saveToSlot(0);
+    }
+    UI.showScreen('start-screen');
+    UI.closeAllModals();
+    this.checkExistingSave();
+  },
+
   setupEventListeners() {
     // ---- START SCREEN ----
     const startNewBtn = document.getElementById('start-new-btn');

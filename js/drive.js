@@ -11,6 +11,12 @@ const DriveSync = {
   fileId: null, // The ID of the save file on Drive
 
   init(retryCount = 0) {
+    // Thử lấy token từ sessionStorage trước
+    const savedToken = sessionStorage.getItem('rpg_drive_token');
+    if (savedToken) {
+      this.accessToken = savedToken;
+    }
+
     // Check if Google GIS script is loaded
     if (typeof google === 'undefined' || !google.accounts) {
       if (retryCount < 10) {
@@ -27,11 +33,17 @@ const DriveSync = {
       callback: (tokenResponse) => {
         if (tokenResponse && tokenResponse.access_token) {
           this.accessToken = tokenResponse.access_token;
+          sessionStorage.setItem('rpg_drive_token', this.accessToken);
           UI.showToast('✅ Đăng nhập Google thành công!', 'success');
           this.checkCloudSave();
         }
       },
     });
+
+    // Nếu đã có token từ session trước, thử lấy file id ngay
+    if (this.accessToken) {
+      this.checkCloudSave();
+    }
   },
 
   // ---- XÁC THỰC ----
