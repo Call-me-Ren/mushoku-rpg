@@ -179,32 +179,32 @@
       </div>
 
       <div class="stat-allocation">
-        <div class="stat-row" id="stat-row-str">
-          <span class="stat-label">💪 STR</span>
+        <div class="stat-row" id="stat-row-str" title="Sức mạnh vật lý, sát thương cận chiến, Thể lực (Stamina)">
+          <span class="stat-label">💪 STR <span style="cursor:help;opacity:0.5;">[?]</span></span>
           <button id="minus-str" class="stat-btn">−</button>
           <span id="extra-str" class="extra-pts">+0</span>
           <button id="plus-str" class="stat-btn">+</button>
         </div>
-        <div class="stat-row" id="stat-row-int">
-          <span class="stat-label">🧠 INT</span>
+        <div class="stat-row" id="stat-row-int" title="Trí tuệ, Mana tối đa, sát thương phép thuật">
+          <span class="stat-label">🧠 INT <span style="cursor:help;opacity:0.5;">[?]</span></span>
           <button id="minus-int" class="stat-btn">−</button>
           <span id="extra-int" class="extra-pts">+0</span>
           <button id="plus-int" class="stat-btn">+</button>
         </div>
-        <div class="stat-row" id="stat-row-agi">
-          <span class="stat-label">⚡ AGI</span>
+        <div class="stat-row" id="stat-row-agi" title="Nhanh nhẹn, né tránh, tốc độ tấn công, tàng hình">
+          <span class="stat-label">⚡ AGI <span style="cursor:help;opacity:0.5;">[?]</span></span>
           <button id="minus-agi" class="stat-btn">−</button>
           <span id="extra-agi" class="extra-pts">+0</span>
           <button id="plus-agi" class="stat-btn">+</button>
         </div>
-        <div class="stat-row" id="stat-row-end">
-          <span class="stat-label">🛡 END</span>
+        <div class="stat-row" id="stat-row-end" title="Sức bền, HP tối đa, phòng thủ vật lý">
+          <span class="stat-label">🛡 END <span style="cursor:help;opacity:0.5;">[?]</span></span>
           <button id="minus-end" class="stat-btn">−</button>
           <span id="extra-end" class="extra-pts">+0</span>
           <button id="plus-end" class="stat-btn">+</button>
         </div>
-        <div class="stat-row" id="stat-row-cha">
-          <span class="stat-label">✨ CHA</span>
+        <div class="stat-row" id="stat-row-cha" title="Sức hút, kỹ năng giao tiếp, thương lượng, thu thập thông tin">
+          <span class="stat-label">✨ CHA <span style="cursor:help;opacity:0.5;">[?]</span></span>
           <button id="minus-cha" class="stat-btn">−</button>
           <span id="extra-cha" class="extra-pts">+0</span>
           <button id="plus-cha" class="stat-btn">+</button>
@@ -249,8 +249,10 @@
       <span class="location-indicator">📍 <span id="header-location">—</span></span>
     </div>
     <div class="header-right">
-      <button id="btn-inventory" class="header-btn" title="Túi đồ">📦 Đồ</button>
-      <button id="btn-skills" class="header-btn" title="Kỹ năng">⚡ Kỹ năng</button>
+      <button onclick="document.getElementById('left-panel').classList.toggle('collapsed')" class="header-btn" title="Ẩn/Hiện Nhân Vật">👤</button>
+      <button onclick="document.getElementById('right-panel').classList.toggle('collapsed')" class="header-btn" title="Ẩn/Hiện Thế Giới">🌍</button>
+      <button id="btn-inventory" class="header-btn" title="Túi đồ (Phím I)">📦 Đồ</button>
+      <button id="btn-skills" class="header-btn" title="Kỹ năng (Phím K)">⚡ Kỹ năng</button>
       <button id="btn-save" class="header-btn" title="Lưu game">💾 Lưu</button>
       <button id="btn-settings" class="header-btn" title="Cài đặt">⚙</button>
     </div>
@@ -260,7 +262,7 @@
   <div class="game-layout">
 
     <!-- LEFT PANEL: Character -->
-    <aside class="char-panel panel">
+    <aside class="char-panel panel" id="left-panel">
       <div class="char-header">
         <div class="char-portrait" id="char-portrait" onclick="UI.showCharacterSheet()" title="Xem hồ sơ nhân vật" style="cursor: pointer;">👤</div>
         <div class="char-info">
@@ -379,7 +381,7 @@
     </main>
 
     <!-- RIGHT PANEL: World -->
-    <aside class="world-panel panel">
+    <aside class="world-panel panel" id="right-panel">
       <div class="world-location-box">
         <div class="world-label">📍 Vị trí hiện tại</div>
         <div class="world-location" id="world-location">—</div>
@@ -446,6 +448,11 @@
     <div class="dice-btn-row">
       <button id="roll-btn-confirm" class="btn-dice-roll">🎲 TUNG!</button>
       <button id="dice-close-btn" class="btn-dice-close">✕</button>
+    </div>
+    <div class="dice-options" style="text-align: center; margin-top: 10px;">
+      <label style="color: var(--text-secondary); font-size: 0.85rem; cursor: pointer;">
+        <input type="checkbox" id="fast-dice-checkbox"> ⚡ Bỏ qua hoạt ảnh (Tua nhanh)
+      </label>
     </div>
   </div>
   <div id="dice-particles"></div>
