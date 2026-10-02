@@ -34,8 +34,19 @@ const App = {
       return;
     }
 
-    // Check if auto-save exists
-    const autoSave = GameState.getSaveInfo(0);
+    // Check if auto-save exists (prefer slot 0, then 1, then 2)
+    let autoSave = GameState.getSaveInfo(0);
+    let continueSlot = 0;
+    
+    if (!autoSave) {
+      autoSave = GameState.getSaveInfo(1);
+      continueSlot = 1;
+    }
+    if (!autoSave) {
+      autoSave = GameState.getSaveInfo(2);
+      continueSlot = 2;
+    }
+    
     const banner = document.getElementById('continue-banner');
     
     if (banner) {
@@ -46,7 +57,13 @@ const App = {
             <button id="continue-btn" class="btn-gold">Tiếp tục hành trình</button>
           </div>`;
         banner.classList.remove('hidden');
-        document.getElementById('continue-btn').onclick = () => this.continueGame();
+        document.getElementById('continue-btn').onclick = () => {
+          if (continueSlot !== 0) {
+            UI._loadSlot(continueSlot);
+          } else {
+            this.continueGame();
+          }
+        };
       } else {
         banner.classList.add('hidden');
       }
