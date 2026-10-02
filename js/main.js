@@ -148,35 +148,11 @@ const App = {
       });
     }
 
-    // Nếu save cũ không có lastChoices, lấy từ lịch sử chat
+    // Cập nhật lại lastChoices để đảm bảo tính nhất quán
     if (!GameState.lastChoices || GameState.lastChoices.length === 0) {
       GameState.lastChoices = GeminiAPI._padChoices(recoveredChoices);
     } else {
-      // Luôn đảm bảo đủ 4 dù save mới
       GameState.lastChoices = GeminiAPI._padChoices(GameState.lastChoices);
-    }
-
-    // Restore last A/B/C/D choices so player can act without re-rolling
-    if (GameState.lastChoices && GameState.lastChoices.length > 0) {
-      const restoreWrap = document.createElement('div');
-      restoreWrap.className = 'dm-choices';
-
-      const labels = ['A', 'B', 'C', 'D'];
-      GameState.lastChoices.forEach((choice, i) => {
-        const btn = document.createElement('button');
-        btn.className = `choice-btn choice-${labels[i] || i}`;
-        btn.dataset.choice = choice;
-        btn.innerHTML = `<span class="choice-label">${labels[i] || i}</span><span class="choice-text">${choice.replace(/^[A-D]:\s*/i, '')}</span>`;
-        btn.onclick = () => UI._selectChoice(restoreWrap, choice, btn);
-        restoreWrap.appendChild(btn);
-      });
-
-      chat.appendChild(restoreWrap);
-      chat.scrollTop = chat.scrollHeight;
-
-      UI.updateSuggestedActions(GameState.lastChoices);
-    } else {
-      UI.updateSuggestedActions([]);
     }
 
     // Khôi phục trạng thái yêu cầu tung xúc xắc nếu có
