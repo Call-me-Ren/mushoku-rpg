@@ -28,6 +28,12 @@ const App = {
   },
 
   checkExistingSave() {
+    if (sessionStorage.getItem('rpg_auto_load')) {
+      sessionStorage.removeItem('rpg_auto_load');
+      setTimeout(() => this.continueGame(), 100);
+      return;
+    }
+
     // Check if auto-save exists
     const autoSave = GameState.getSaveInfo(0);
     if (autoSave) {
@@ -48,14 +54,14 @@ const App = {
     const data = GameState.loadFromSlot(0);
     if (!data) { UI.showToast('Không tìm thấy save!', 'error'); return; }
 
-    // Pre-fill API key if saved
+    // Auto-prompt API key if missing
     const savedKey = localStorage.getItem('rpg_api_key') || '';
     if (!savedKey) {
-      UI.showToast('Hãy nhập API key trong cài đặt trước!', 'error');
-      return;
+      setTimeout(() => {
+        UI.showToast('Vui lòng nhập Gemini API Key để tiếp tục chơi!', 'warning');
+        UI.showSettings();
+      }, 500);
     }
-    GameState.apiKey = savedKey;
-    GameState.modelName = localStorage.getItem('rpg_model') || 'gemini-3.8-flash';
 
     UI.showScreen('game-screen');
     UI.updateCharacterPanel();

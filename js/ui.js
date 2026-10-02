@@ -717,21 +717,27 @@ const UI = {
   },
 
   _loadSlot(slot) {
-    const data = GameState.loadFromSlot(slot);
-    if (data) {
-      this.showScreen('game-screen');
-      this.updateCharacterPanel();
-      if (typeof App.refreshChatHistory === 'function') {
-        App.refreshChatHistory();
+    if (slot !== 0) {
+      const dataStr = localStorage.getItem(`rpg_save_${slot}`);
+      if (dataStr) {
+        localStorage.setItem('rpg_save_0', dataStr); // Overwrite Autosave
       }
-      this.closeAllModals();
-      this.showToast(`Đã tải game từ ô ${slot + 1}!`);
     }
+    
+    // Đánh dấu là vừa load xong để tự động vào game
+    sessionStorage.setItem('rpg_auto_load', 'true');
+    location.reload(); // Refresh toàn bộ trang để reset UI 100%
   },
 
   _deleteSlot(slot) {
     localStorage.removeItem(`rpg_save_${slot}`);
-    this.showSaveLoad();
+    
+    // Nếu xóa đúng ô hiện tại đang chơi (Ô 1 - Autosave) thì kick ra ngoài
+    if (slot === 0 && document.getElementById('game-screen').classList.contains('active')) {
+      location.reload();
+    } else {
+      this.showSaveLoad();
+    }
   },
 
   async _importSlot(event, slot) {

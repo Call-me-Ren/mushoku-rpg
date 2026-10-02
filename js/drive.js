@@ -67,6 +67,35 @@ const DriveSync = {
     }
   },
 
+  async _getOrCreateFolder(folderName, parentId = null) {
+    let query = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
+    if (parentId) query += ` and '${parentId}' in parents`;
+    
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
+      headers: { 'Authorization': `Bearer ${this.accessToken}` }
+    });
+    const data = await res.json();
+    if (data.files && data.files.length > 0) return data.files[0].id;
+
+    // Folder doesn't exist, create it
+    const metadata = {
+      name: folderName,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: parentId ? [parentId] : undefined
+    };
+    
+    const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${this.accessToken}`,
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify(metadata)
+    });
+    const createData = await createRes.json();
+    return createData.id;
+  },
+
   async uploadSave() {
     if (!this.accessToken) return;
     UI.setLoading(true);
@@ -79,24 +108,30 @@ const DriveSync = {
     }
     
     const fileContent = JSON.stringify(allSaves);
-    const metadata = {
+    let metadata = {
       name: this.saveFileName,
       mimeType: 'application/json'
     };
-
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('file', new Blob([fileContent], { type: 'application/json' }));
 
     try {
       let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
       let method = 'POST';
       
-      // Nếu file đã có, update nó
+      // Nếu file ĐÃ có, update nó (PATCH)
       if (this.fileId) {
         url = `https://www.googleapis.com/upload/drive/v3/files/${this.fileId}?uploadType=multipart`;
         method = 'PATCH';
+      } else {
+        // Nếu file CHƯA có, tạo thư mục MUSHOKU RPG -> Saves rồi nhét file vào đó
+        UI.showToast('Đang tạo cấu trúc thư mục trên Drive...', 'info');
+        const mainFolderId = await this._getOrCreateFolder('MUSHOKU RPG');
+        const savesFolderId = await this._getOrCreateFolder('Saves', mainFolderId);
+        metadata.parents = [savesFolderId];
       }
+
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      form.append('file', new Blob([fileContent], { type: 'application/json' }));
 
       const res = await fetch(url, {
         method: method,
