@@ -42,7 +42,12 @@ const AssistantAI = {
 
     const msgDiv = document.createElement('div');
     msgDiv.className = `assistant-msg ${role}-msg`;
-    msgDiv.innerHTML = text;
+    
+    if (role === 'user') {
+      msgDiv.textContent = text;
+    } else {
+      msgDiv.innerHTML = text;
+    }
     
     chat.appendChild(msgDiv);
     chat.scrollTop = chat.scrollHeight;

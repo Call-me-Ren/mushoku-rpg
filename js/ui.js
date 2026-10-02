@@ -481,11 +481,15 @@ const UI = {
       chat.appendChild(indicator);
       this._scrollToBottom();
     } else {
+      const hasPendingRoll = typeof App !== 'undefined' && App.pendingDiceRoll;
       sendBtn.disabled = false;
       sendBtn.innerHTML = 'Hành Động <span>↵</span>';
       if (rollBtn) rollBtn.disabled = false;
-      input.disabled = false;
-      input.focus();
+      
+      if (!hasPendingRoll) {
+        input.disabled = false;
+        input.focus();
+      }
 
       // Remove typing indicator
       const indicator = document.getElementById('typing-indicator');
@@ -708,8 +712,11 @@ const UI = {
       }
     }
     
-    if (typeof App.checkExistingSave === 'function') {
-      App.checkExistingSave();
+    const startScreen = document.getElementById('start-screen');
+    if (startScreen && startScreen.classList.contains('active')) {
+      if (typeof App.checkExistingSave === 'function') {
+        App.checkExistingSave();
+      }
     }
     
     document.getElementById('saveload-modal').classList.add('active');

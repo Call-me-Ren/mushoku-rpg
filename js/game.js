@@ -5,7 +5,7 @@
 const GameState = {
   // Settings
   apiKey: '',
-  modelName: 'gemini-3.8-flash',
+  modelName: 'gemini-2.0-flash',
 
   // Character data
   character: null,
@@ -28,7 +28,7 @@ const GameState = {
   // ---- INIT ----
   init() {
     this.apiKey = localStorage.getItem('rpg_api_key') || '';
-    this.modelName = localStorage.getItem('rpg_model') || 'gemini-3.8-flash';
+    this.modelName = localStorage.getItem('rpg_model') || 'gemini-2.0-flash';
   },
 
   // ---- CHARACTER CREATION ----
@@ -76,7 +76,7 @@ const GameState = {
       maxMana,
       stamina: maxStamina,
       maxStamina,
-      gold: data.background === 'isekai' ? 50 : 120,
+      gold: data.background === 'isekai' ? 50000 : 120000,
       stats: base,
       inventory: startInventory,
       equipment: {

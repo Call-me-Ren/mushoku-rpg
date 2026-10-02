@@ -10,10 +10,14 @@ const DriveSync = {
   saveFileName: 'mushoku_rpg_saves.json',
   fileId: null, // The ID of the save file on Drive
 
-  init() {
+  init(retryCount = 0) {
     // Check if Google GIS script is loaded
     if (typeof google === 'undefined' || !google.accounts) {
-      setTimeout(() => this.init(), 500);
+      if (retryCount < 10) {
+        setTimeout(() => this.init(retryCount + 1), 500);
+      } else {
+        console.warn('[DriveSync] Google GIS không load được. Cloud save bị vô hiệu hóa.');
+      }
       return;
     }
     
@@ -103,8 +107,12 @@ const DriveSync = {
     // Thu thập tất cả 3 slot save
     const allSaves = {};
     for (let i = 0; i < 3; i++) {
-      const slotData = GameState.loadFromSlot(i);
-      if (slotData) allSaves[`slot_${i}`] = slotData;
+      const raw = localStorage.getItem(`rpg_save_${i}`);
+      if (raw) {
+        try {
+          allSaves[`slot_${i}`] = JSON.parse(raw);
+        } catch (_) {}
+      }
     }
     
     const fileContent = JSON.stringify(allSaves);

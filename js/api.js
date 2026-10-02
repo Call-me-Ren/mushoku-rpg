@@ -83,7 +83,7 @@ const GeminiAPI = {
         temperature: 0.9,
         maxOutputTokens: 2048,
         // responseMimeType only works on some models; fallback handled by _parseResponse
-        ...(model.includes('3.8') || model.includes('3.5') || model.includes('3.1') || model.includes('2.') ? { responseMimeType: 'application/json' } : {}),
+        ...(model.includes('1.5') || model.includes('2.') ? { responseMimeType: 'application/json' } : {}),
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },

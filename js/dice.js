@@ -198,6 +198,9 @@ const DiceSystem = {
 
   closeDiceOverlay() {
     document.getElementById('dice-overlay').classList.remove('active');
-    this._pendingCallback = null;
+    const resultArea = document.getElementById('dice-result-area');
+    if (!resultArea || resultArea.classList.contains('hidden')) {
+      this._pendingCallback = null;
+    }
   },
 };
