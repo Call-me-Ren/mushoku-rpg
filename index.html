@@ -388,7 +388,33 @@
         <div class="world-location" id="world-location">—</div>
       </div>
 
+      <!-- Âm thanh & Nhạc nền -->
+      <div class="audio-box" style="margin-top: 15px;">
+        <div class="world-label">🎵 Âm thanh & Nhạc nền</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-size: 0.85rem; color: #a0aec0;">Giọng đọc (TTS)</span>
+          <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1" style="width: 100px; accent-color: var(--gold-primary);">
+        </div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-size: 0.85rem; color: #a0aec0;">Nhạc nền (BGM)</span>
+          <input type="range" id="bgm-volume" min="0" max="1" step="0.05" value="0.2" style="width: 100px; accent-color: var(--gold-primary);">
+        </div>
 
+        <select id="bgm-select" style="width:100%; padding: 6px; margin-bottom: 8px; background: var(--bg-dark); color: #fff; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;">
+          <option value="">🔇 Tắt nhạc nền</option>
+          <option value="https://www.youtube.com/watch?v=S212XpQ80-c">Phiêu lưu kỳ ảo (Bình yên)</option>
+          <option value="https://www.youtube.com/watch?v=aG42ZlUet24">Quán trọ ồn ào (Tavern)</option>
+          <option value="https://www.youtube.com/watch?v=xS5Qz62aOck">Chiến đấu kịch tính (Combat)</option>
+          <option value="custom">🔗 Dùng Link tùy chỉnh (Youtube/MP3)</option>
+        </select>
+        
+        <div id="custom-bgm-container" style="display:none; gap: 5px;">
+          <input type="text" id="bgm-link" placeholder="Nhập link Youtube/MP3..." style="flex:1; padding: 6px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 4px; color: #fff; font-size: 0.8rem;">
+          <button id="bgm-play-btn" style="background: var(--gold-primary); color: #000; border: none; padding: 0 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">▶</button>
+        </div>
+      </div>
 
       <!-- NPC memory -->
       <div class="npc-box">
@@ -601,6 +627,10 @@
 <!-- ============================================================ -->
 <!-- SCRIPTS                                                      -->
 <!-- ============================================================ -->
+<!-- Audio Player (Hidden) -->
+<div id="yt-player" style="display:none;"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="js/prompts.js"></script>
 <script src="js/game.js"></script>
@@ -608,6 +638,7 @@
 <script src="js/dice.js"></script>
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/audio.js"></script>
 <script src="js/character.js"></script>
 <script src="js/assistant.js"></script>
 <script src="js/main.js"></script>

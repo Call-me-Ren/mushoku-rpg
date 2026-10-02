@@ -12,6 +12,7 @@ const UI = {
     _activeBtn: null,
     _speaking: false,
     _rate: parseFloat(localStorage.getItem('tts_rate') || '1'),
+    _volume: parseFloat(localStorage.getItem('tts_volume') || '1'),
     _autoScroll: localStorage.getItem('tts_autoscroll') !== 'false',
     _autoTTS: localStorage.getItem('tts_auto') === 'true',
     _activeContainer: null,
@@ -48,13 +49,14 @@ const UI = {
         .trim();
 
       // Tìm container và wrap từng từ thành <span class="tts-word">
-      const msgContent = btn.closest('.message-content');
+      const msgContent = btn ? btn.closest('.message-content') : null;
       this._activeContainer = msgContent;
       this._wordSpans = msgContent ? this._wrapWords(msgContent, clean) : [];
 
       this._utterance = new SpeechSynthesisUtterance(clean);
       this._utterance.lang = 'vi-VN';
       this._utterance.rate = this._rate;
+      this._utterance.volume = this._volume;
       this._utterance.pitch = 1.0;
       const voice = this._getVoice();
       if (voice) this._utterance.voice = voice;
@@ -225,6 +227,20 @@ const UI = {
           localStorage.setItem('tts_auto', this._autoTTS);
           autoBtn.classList.toggle('active', this._autoTTS);
           UI.showToast(this._autoTTS ? 'Đã bật tự động đọc (Auto TTS)' : 'Đã tắt tự động đọc', 'info');
+        });
+      }
+
+      // Setup TTS Volume Slider
+      const volSlider = document.getElementById('tts-volume');
+      if (volSlider) {
+        volSlider.value = this._volume;
+        volSlider.addEventListener('input', (e) => {
+          this._volume = parseFloat(e.target.value);
+          localStorage.setItem('tts_volume', this._volume);
+          if (this._utterance && this._speaking) {
+            // Cannot change volume while speaking in some browsers, but we can try
+            // or just let it apply to the next sentence
+          }
         });
       }
     },

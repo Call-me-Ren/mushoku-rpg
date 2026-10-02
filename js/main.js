@@ -7,6 +7,7 @@ const App = {
 
   async init() {
     GameState.init();
+    if (window.AudioManager) window.AudioManager.init();
     this.setupEventListeners();
     this.checkExistingSave();
     this.setupAutoSave();
